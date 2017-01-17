@@ -11,7 +11,7 @@ function tryDb() {
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DB
+    database: process.env.MYSQL_DATABASE
   });
 
   con.connect(function(err){
@@ -23,19 +23,29 @@ function tryDb() {
         case "ECONNREFUSED":
           console.log(Date.now()+" Server not running yet: "+process.env.MYSQL_HOST)
           break
+        case "ENOTFOUND":
+          console.log(Date.now()+" No container with name "+process.env.MYSQL_HOST+" is discoverable")
+          break
         default:
           console.log(err)
       }
 
       con.end();
-      setTimeout(tryDb, 500)
+      setTimeout(tryDb, 750)
     } else {
       console.log(Date.now()+" Connection established, database selected")
       con.query("SELECT 1 FROM `"+process.env.MYSQL_TABLE+"` LIMIT 1", function(err, results, fields) {
         if (err) {
-          console.log(err)
+          switch (err.code) {
+            case "ER_NO_SUCH_TABLE":
+              console.log(Date.now()+" No table with name "+process.env.MYSQL_TABLE)
+              break
+            default:
+              console.log(err)
+          }
+
           con.end()
-          setTimeout(tryDb, 500)
+          setTimeout(tryDb, 750)
         } else {
           console.log(Date.now()+' table found')
           var server = http.createServer(function(req, res) {
