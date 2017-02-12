@@ -7,7 +7,6 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app/
 COPY yarn.lock /usr/src/app/
 
-RUN npm set registry "http://nexus.tlt.local:8081/nexus/repository/npm-releases/"
 RUN npm install yarn -g
 RUN yarn
 
