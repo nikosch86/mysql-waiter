@@ -26,6 +26,9 @@ function tryDb() {
         case "ENOTFOUND":
           console.log(Date.now()+" No container with name "+process.env.MYSQL_HOST+" is discoverable")
           break
+        case "ER_ACCESS_DENIED_ERROR":
+          console.log(Date.now()+" Access denied to "+process.env.MYSQL_DATABASE+" with user "+process.env.MYSQL_USER)
+          break
         default:
           console.log(err)
       }
