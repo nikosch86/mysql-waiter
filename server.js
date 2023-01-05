@@ -52,7 +52,8 @@ function tryDb() {
         } else {
           console.log(Date.now()+' table found')
           var server = http.createServer(function(req, res) {
-            res.write("NOOP").end()
+            res.write("NOOP")
+            res.end()
           })
           server.listen(server_port)
           console.log(Date.now()+" server listening on port "+server_port)
