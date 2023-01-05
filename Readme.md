@@ -16,3 +16,4 @@ environment:
 
 It will retry connecting to the server, selecting the database and looking for that table, if successfull it will listen on port 3000.
 That way you can use this shim with any of your healthchecks or wait-for-it scripts and just look for port 3000 to know when your mysql container is ready
+
