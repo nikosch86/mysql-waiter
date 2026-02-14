@@ -10,10 +10,15 @@ environment:
   - MYSQL_HOST=mysql-container-name
   - MYSQL_USER=hopefully-not-root
   - MYSQL_PASSWORD=change_me
-  - MYSQL_DB=database-that-is-imported
-  - MYSQL_TABLE=a=table-within-that-db
+  - MYSQL_DATABASE=database-that-is-imported
+  - MYSQL_TABLE=a-table-within-that-db
 ```
 
-It will retry connecting to the server, selecting the database and looking for that table, if successfull it will listen on port 3000.
-That way you can use this shim with any of your healthchecks or wait-for-it scripts and just look for port 3000 to know when your mysql container is ready
+Optionally set `SERVER_PORT` to change the HTTP port (default: `3000`).
 
+It will retry connecting to the server, selecting the database and looking for that table, if successful it will listen on port 3000.
+That way you can use this shim with any of your healthchecks or wait-for-it scripts and just look for port 3000 to know when your mysql container is ready.
+
+Written in Go — the Docker image is ~10MB (scratch-based, static binary).
+
+See the sample `compose.yaml` to show how to use this setup.

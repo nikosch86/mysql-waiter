@@ -1,0 +1,23 @@
+services:
+  example-mysql-server:
+    image: mysql:9
+    environment:
+      - MYSQL_USER=hopefully-not-root
+      - MYSQL_PASSWORD=change_me
+      - MYSQL_DATABASE=database-that-is-imported
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+    volumes:
+      - ./import-db:/docker-entrypoint-initdb.d
+  mysql-waiter:
+    build: .
+    environment:
+      - MYSQL_HOST=example-mysql-server
+      - MYSQL_USER=hopefully-not-root
+      - MYSQL_PASSWORD=change_me
+      - MYSQL_DATABASE=database-that-is-imported
+      - MYSQL_TABLE=a-table-within-that-db
+  example-app:
+    image: ealen/echo-server
+    depends_on:
+      mysql-waiter:
+        condition: service_healthy

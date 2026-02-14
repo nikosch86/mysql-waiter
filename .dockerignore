@@ -1,2 +1,10 @@
-node_modules/
-yarn-error.log
+mysql-waiter
+coverage.out
+coverage.html
+*.md
+.git
+.gitignore
+.github
+import-db
+compose.yaml
+Dockerfile
