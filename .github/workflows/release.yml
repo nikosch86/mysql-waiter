@@ -1,14 +1,14 @@
-name: Release
+name: Build & Release
 
 on:
   push:
+    branches: [master, testing]
     tags: ['v*.*.*']
-
-permissions:
-  contents: write
+  pull_request:
+    branches: [master]
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -23,8 +23,7 @@ jobs:
             goarch: arm64
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -38,7 +37,36 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
         run: go build -trimpath -ldflags="-s -w" -o mysql-waiter-${{ matrix.goos }}-${{ matrix.goarch }} .
 
-      - name: Upload release binary
-        uses: softprops/action-gh-release@v2
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: mysql-waiter-${{ matrix.goos }}-${{ matrix.goarch }}
+          name: mysql-waiter-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: mysql-waiter-${{ matrix.goos }}-${{ matrix.goarch }}
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create GitHub release
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" release-assets/* \
+            --repo "${{ github.repository }}" \
+            --generate-notes \
+            --notes "### Docker images
+          \`\`\`
+          docker pull docker.io/${{ github.repository }}:${VERSION}
+          docker pull ghcr.io/${{ github.repository }}:${VERSION}
+          \`\`\`"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
